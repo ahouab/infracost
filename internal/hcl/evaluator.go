@@ -933,7 +933,7 @@ func (e *Evaluator) loadModules(lastContext hcl.EvalContext) {
 			continue
 		}
 
-		e.logger.Debugf("adding module call %s to the evaluation context", moduleBlock.Label())
+		e.logger.Debugf("adding module call %s to the evaluation context", moduleBlock.FullName())
 		e.moduleCalls[moduleBlock.FullName()] = moduleCall
 	}
 }
