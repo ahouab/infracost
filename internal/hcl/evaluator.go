@@ -221,6 +221,8 @@ func (e *Evaluator) Run() (*Module, error) {
 	// expand out resources and modules via count and evaluate again so that we can include
 	// any module outputs and or count references.
 	e.module.Blocks = e.expandBlocks(e.module.Blocks, lastContext)
+	e.moduleCalls = map[string]*ModuleCall{}
+	e.loadModules(lastContext)
 	e.logger.Debug("evaluating context after expanding blocks")
 	e.evaluate(lastContext)
 
