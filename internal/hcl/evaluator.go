@@ -550,6 +550,14 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 		return append(expanded, eaches...)
 	}
 
+	fmt.Println("START: expanded", len(expanded))
+	for _, block := range expanded {
+		if block.Type() == "module" {
+			fmt.Println("expanded module", block.FullName())
+		}
+	}
+	fmt.Println("END: expanded")
+
 	return expanded
 }
 
