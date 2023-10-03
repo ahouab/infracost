@@ -389,8 +389,7 @@ func (e *Evaluator) expandBlocks(blocks Blocks, lastContext hcl.EvalContext) Blo
 		e.logger.Warnf("hit max context iterations expanding blocks in module %s", e.module.Name)
 	}
 
-	// return e.expandDynamicBlocks(expanded...)
-	return expanded
+	return e.expandDynamicBlocks(expanded...)
 }
 
 func (e *Evaluator) expandDynamicBlocks(blocks ...*Block) Blocks {
@@ -483,7 +482,7 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 			continue
 		}
 
-		e.logger.Debugf("expanding block %s because a for_each attribute was found", block.LocalName())
+		fmt.Printf("expanding block %s because a for_each attribute was found\n", block.LocalName())
 
 		value := forEachAttr.Value()
 		if !value.IsNull() && value.IsKnown() && forEachAttr.IsIterable() {
@@ -529,6 +528,8 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 		}
 	}
 
+	fmt.Println("haveChanged", len(haveChanged))
+
 	if len(haveChanged) > 0 {
 		var changes = make(Blocks, 0, len(haveChanged))
 		for _, block := range haveChanged {
@@ -537,6 +538,10 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 
 		eaches := e.expandBlockForEaches(changes)
 		return append(expanded, eaches...)
+	}
+
+	for _, e := range expanded {
+		fmt.Println("expanded", e.FullName())
 	}
 
 	return expanded
