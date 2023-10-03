@@ -486,10 +486,7 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 			continue
 		}
 
-		p := block.LocalName() == "module.redis_cluster"
-		if p {
-			fmt.Printf("expanding block %s because a for_each attribute was found\n", block.LocalName())
-		}
+		e.logger.Debugf("expanding block %s because a for_each attribute was found", block.LocalName())
 
 		value := forEachAttr.Value()
 		if !value.IsNull() && value.IsKnown() && forEachAttr.IsIterable() {
@@ -514,10 +511,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 					e.logger.WithError(err).Debugf("could not marshal gocty key %s to string", key)
 				}
 
-				if p {
-					fmt.Println("keyStr", keyStr)
-				}
-
 				ctx.SetByDot(key, "each.key")
 				ctx.SetByDot(val, "each.value")
 
@@ -529,10 +522,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 
 				if v, ok := e.moduleCalls[clone.FullName()]; ok {
 					v.Definition = clone
-				}
-
-				if p {
-					fmt.Println("FullName", clone.FullName())
 				}
 
 				expanded = append(expanded, clone)
@@ -553,14 +542,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 		eaches := e.expandBlockForEaches(changes)
 		return append(expanded, eaches...)
 	}
-
-	// fmt.Println("START: expanded", len(expanded))
-	// for _, block := range expanded {
-	// 	if block.Type() == "module" {
-	// 		fmt.Println("expanded module", block.FullName())
-	// 	}
-	// }
-	// fmt.Println("END: expanded")
 
 	return expanded
 }
@@ -943,15 +924,6 @@ func (e *Evaluator) loadModules(lastContext hcl.EvalContext) {
 	expanded := e.expandBlocks(moduleBlocks.SortedByCaller(), lastContext)
 	filtered = append(filtered, expanded...)
 	e.module.Blocks = filtered
-
-
-	fmt.Println("START: loadModules", len(expanded))
-	for _, block := range expanded {
-		if block.Type() == "module" {
-			fmt.Println("expanded module", block.FullName())
-		}
-	}
-	fmt.Println("END: loadModules")
 
 	// TODO: if a module uses a count that depends on a module output, then the block expansion might be incorrect.
 	for _, moduleBlock := range expanded {
