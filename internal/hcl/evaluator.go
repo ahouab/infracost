@@ -389,6 +389,14 @@ func (e *Evaluator) expandBlocks(blocks Blocks, lastContext hcl.EvalContext) Blo
 		e.logger.Warnf("hit max context iterations expanding blocks in module %s", e.module.Name)
 	}
 
+	fmt.Println("START: expandBlocks", len(expanded))
+	for _, block := range expanded {
+		if block.Type() == "module" {
+			fmt.Println("expanded module", block.FullName())
+		}
+	}
+	fmt.Println("END: expandBlocks")
+
 	return e.expandDynamicBlocks(expanded...)
 }
 
@@ -550,13 +558,13 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 		return append(expanded, eaches...)
 	}
 
-	fmt.Println("START: expanded", len(expanded))
-	for _, block := range expanded {
-		if block.Type() == "module" {
-			fmt.Println("expanded module", block.FullName())
-		}
-	}
-	fmt.Println("END: expanded")
+	// fmt.Println("START: expanded", len(expanded))
+	// for _, block := range expanded {
+	// 	if block.Type() == "module" {
+	// 		fmt.Println("expanded module", block.FullName())
+	// 	}
+	// }
+	// fmt.Println("END: expanded")
 
 	return expanded
 }
