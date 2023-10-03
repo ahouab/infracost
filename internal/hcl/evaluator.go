@@ -923,6 +923,7 @@ func (e *Evaluator) loadModules(lastContext hcl.EvalContext) {
 	// TODO: if a module uses a count that depends on a module output, then the block expansion might be incorrect.
 	for _, moduleBlock := range expanded {
 		if moduleBlock.Label() == "" {
+			e.logger.Debugf("module block %s has no label, ignoring", moduleBlock.FullName())
 			continue
 		}
 
@@ -932,6 +933,7 @@ func (e *Evaluator) loadModules(lastContext hcl.EvalContext) {
 			continue
 		}
 
+		e.logger.Debugf("adding module call %s to the evaluation context", moduleBlock.Label())
 		e.moduleCalls[moduleBlock.FullName()] = moduleCall
 	}
 }
