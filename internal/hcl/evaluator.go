@@ -391,14 +391,6 @@ func (e *Evaluator) expandBlocks(blocks Blocks, lastContext hcl.EvalContext) Blo
 
 	r := e.expandDynamicBlocks(expanded...)
 
-	fmt.Println("START: expandBlocks", len(r))
-	for _, block := range r {
-		if block.Type() == "module" {
-			fmt.Println("expanded module", block.FullName())
-		}
-	}
-	fmt.Println("END: expandBlocks")
-
 	return r
 }
 
@@ -949,6 +941,15 @@ func (e *Evaluator) loadModules(lastContext hcl.EvalContext) {
 	expanded := e.expandBlocks(moduleBlocks.SortedByCaller(), lastContext)
 	filtered = append(filtered, expanded...)
 	e.module.Blocks = filtered
+
+
+	fmt.Println("START: loadModules", len(expanded))
+	for _, block := range expanded {
+		if block.Type() == "module" {
+			fmt.Println("expanded module", block.FullName())
+		}
+	}
+	fmt.Println("END: loadModules")
 
 	// TODO: if a module uses a count that depends on a module output, then the block expansion might be incorrect.
 	for _, moduleBlock := range expanded {
