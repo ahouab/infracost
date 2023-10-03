@@ -482,7 +482,7 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 			continue
 		}
 
-		p := block.LocalName() == "redis_cluster"
+		p := block.LocalName() == "module.redis_cluster"
 		if p {
 			fmt.Printf("expanding block %s because a for_each attribute was found\n", block.LocalName())
 		}
