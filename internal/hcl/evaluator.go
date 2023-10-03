@@ -389,7 +389,8 @@ func (e *Evaluator) expandBlocks(blocks Blocks, lastContext hcl.EvalContext) Blo
 		e.logger.Warnf("hit max context iterations expanding blocks in module %s", e.module.Name)
 	}
 
-	return e.expandDynamicBlocks(expanded...)
+	// return e.expandDynamicBlocks(expanded...)
+	return expanded
 }
 
 func (e *Evaluator) expandDynamicBlocks(blocks ...*Block) Blocks {
