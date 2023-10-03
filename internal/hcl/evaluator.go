@@ -482,7 +482,10 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 			continue
 		}
 
-		fmt.Printf("expanding block %s because a for_each attribute was found\n", block.LocalName())
+		p := block.LocalName() == "redis_cluster"
+		if p {
+			fmt.Printf("expanding block %s because a for_each attribute was found\n", block.LocalName())
+		}
 
 		value := forEachAttr.Value()
 		if !value.IsNull() && value.IsKnown() && forEachAttr.IsIterable() {
@@ -507,6 +510,10 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 					e.logger.WithError(err).Debugf("could not marshal gocty key %s to string", key)
 				}
 
+				if p {
+					fmt.Println("keyStr", keyStr)
+				}
+
 				ctx.SetByDot(key, "each.key")
 				ctx.SetByDot(val, "each.value")
 
@@ -519,6 +526,11 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 				if v, ok := e.moduleCalls[clone.FullName()]; ok {
 					v.Definition = clone
 				}
+
+				if p {
+					fmt.Println("FullName", clone.FullName())
+				}
+
 				expanded = append(expanded, clone)
 
 				return false
@@ -528,8 +540,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 		}
 	}
 
-	fmt.Println("haveChanged", len(haveChanged))
-
 	if len(haveChanged) > 0 {
 		var changes = make(Blocks, 0, len(haveChanged))
 		for _, block := range haveChanged {
@@ -538,10 +548,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 
 		eaches := e.expandBlockForEaches(changes)
 		return append(expanded, eaches...)
-	}
-
-	for _, e := range expanded {
-		fmt.Println("expanded", e.FullName())
 	}
 
 	return expanded
