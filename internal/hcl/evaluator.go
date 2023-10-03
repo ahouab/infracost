@@ -391,9 +391,7 @@ func (e *Evaluator) expandBlocks(blocks Blocks, lastContext hcl.EvalContext) Blo
 		e.logger.Warnf("hit max context iterations expanding blocks in module %s", e.module.Name)
 	}
 
-	r := e.expandDynamicBlocks(expanded...)
-
-	return r
+	return e.expandDynamicBlocks(expanded...)
 }
 
 func (e *Evaluator) expandDynamicBlocks(blocks ...*Block) Blocks {
@@ -523,7 +521,6 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 				if v, ok := e.moduleCalls[clone.FullName()]; ok {
 					v.Definition = clone
 				}
-
 				expanded = append(expanded, clone)
 
 				return false
