@@ -221,8 +221,6 @@ func (e *Evaluator) Run() (*Module, error) {
 	// expand out resources and modules via count and evaluate again so that we can include
 	// any module outputs and or count references.
 	e.module.Blocks = e.expandBlocks(e.module.Blocks, lastContext)
-	e.moduleCalls = map[string]*ModuleCall{}
-	e.loadModules(lastContext)
 	e.logger.Debug("evaluating context after expanding blocks")
 	e.evaluate(lastContext)
 
@@ -521,6 +519,20 @@ func (e *Evaluator) expandBlockForEaches(blocks Blocks) Blocks {
 				if v, ok := e.moduleCalls[clone.FullName()]; ok {
 					v.Definition = clone
 				}
+
+				if clone.Type() == "module" {
+					if _, ok := e.moduleCalls[clone.FullName()]; !ok {
+						modCall, err := e.loadModule(clone)
+						if err != nil {
+							e.logger.WithError(err).Debugf("could not load module %s", clone.FullName())
+							return false
+						}
+						e.moduleCalls[clone.FullName()] = modCall
+
+						delete(e.moduleCalls, block.FullName())
+					}
+				}
+
 				expanded = append(expanded, clone)
 
 				return false
@@ -587,6 +599,19 @@ func (e *Evaluator) expandBlockCounts(blocks Blocks) Blocks {
 
 			expanded = append(expanded, clone)
 			vals[i] = clone.Values()
+
+			if clone.Type() == "module" {
+				if _, ok := e.moduleCalls[clone.FullName()]; !ok {
+					modCall, err := e.loadModule(clone)
+					if err != nil {
+						e.logger.WithError(err).Debugf("could not load module %s", clone.FullName())
+						return nil
+					}
+					e.moduleCalls[clone.FullName()] = modCall
+
+					delete(e.moduleCalls, block.FullName())
+				}
+			}
 		}
 
 		e.ctx.SetByDot(cty.TupleVal(vals), block.Reference().String())
